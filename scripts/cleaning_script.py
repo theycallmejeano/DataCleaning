@@ -14,12 +14,14 @@ class HealthCleaner:
         self.checkFile()
         
     
+    #TODO fix this
     data = pd.read_csv(self, index_col=0)
     
 
     #function to clean region names
     def clean_locations(self,province_map):
     
+        #TODO fix this
         #read data
         frame = HealthCleaner.data
         #replace --- entire dataset and drop entire nulls 
@@ -33,7 +35,6 @@ class HealthCleaner:
         
         return frame_copy
 
-        pass
 
     #convert columns to numeric
     def get_numeric(self, province_col):
@@ -78,6 +79,7 @@ class HealthCleaner:
         :returns : dataframe, which indicating the proportion of missing values in each column and the column type
             
         """    
+        #TODO fix this
         #read data
         frame = HealthCleaner.data
         
@@ -113,6 +115,7 @@ class HealthCleaner:
                 
         returns : list of categorical values
         """
+        #TODO fix this
         #read data
         frame = HealthCleaner.data
 
