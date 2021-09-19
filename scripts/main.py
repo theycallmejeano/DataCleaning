@@ -1,6 +1,6 @@
 import sys
 import getopt
-from cleaning_script import HealthCleaner
+from cleaning_script import DataCleaner
 
 # write json file
 def main(argv):
@@ -25,10 +25,10 @@ def main(argv):
     if outputfile == "":
         outputfile = inputfile
 
-    file = HealthCleaner(inputfile)
+    file = DataCleaner(inputfile)
     
     # write dict to json-file
-    csv_file = HealthCleaner(outputfile)
+    csv_file = DataCleaner(outputfile)
     csv_file.writeContent(file)
 
 

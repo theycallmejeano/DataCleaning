@@ -6,26 +6,21 @@ import csv
 from cleaning_vars import *
 
 
-class HealthCleaner:
+class DataCleaner:
     def __init__(self, filename):
         self.file = filename
+        self.data = pd.read_csv(filename)
         self.file_name = self.file.rsplit('.', 1)[0]
         self.absolute_path = "%s.cleaned_csv" % (self.file_name)
         self.checkFile()
         
-    
-    #TODO fix this
-    data = pd.read_csv(self, index_col=0)
-    
 
     #function to clean region names
     def clean_locations(self,province_map):
     
-        #TODO fix this
-        #read data
-        frame = HealthCleaner.data
+    
         #replace --- entire dataset and drop entire nulls 
-        frame_copy = frame.replace({'---': np.nan}, regex = True).dropna(axis =1 , how = 'all')
+        frame_copy = self.data.replace({'---': np.nan}, regex = True).dropna(axis =1 , how = 'all')
         
         #standardise province values
         frame_copy[province_col] = frame_copy[province_col].replace(to_replace = province_map)
@@ -41,12 +36,11 @@ class HealthCleaner:
         """
         Converts numeric object columns to their appropriate numeric form
         
-        param frame: input dataframe
         returns : dataframe with numeric columns in their appropriate form
         """
         
-        #frame copy
-        frame_copy = HealthCleaner.clean_locations(self, province_col)
+        #Input dataframe from clean locations
+        frame_copy = DataCleaner.clean_locations(self, province_col)
         
         #create list to store object columns
         obj_list = []
@@ -81,8 +75,7 @@ class HealthCleaner:
         """    
         #TODO fix this
         #read data
-        frame = HealthCleaner.data
-        
+        frame = self.data
         
         #find the datatypes of all columns
         col_dtypes = frame.dtypes.to_frame()\
@@ -117,7 +110,7 @@ class HealthCleaner:
         """
         #TODO fix this
         #read data
-        frame = HealthCleaner.data
+        frame = self.data
 
         possible_cat = {}
         #ratio of unique values to approximate if the column is categorical
@@ -131,7 +124,7 @@ class HealthCleaner:
                                                         0:"categorical"})
         
         #merge with missing data identifier
-        missing_vals = HealthCleaner.get_missing_id(frame).merge(categorical_frame, 
+        missing_vals = DataCleaner.get_missing_id(frame).merge(categorical_frame, 
                                                    how = 'left', 
                                                    on = 'column')
         
@@ -145,10 +138,10 @@ class HealthCleaner:
     #fill missing categorical values
     def fill_categorical(self, province_col):
         #copy dataframe 
-        frame_copy = HealthCleaner.get_numeric(self, province_col)
+        frame_copy = DataCleaner.get_numeric(self, province_col)
 
         #get categorical list
-        categorical_list = HealthCleaner.get_categorical(self, province_col).query('col_type == "object" & categorical == True & 1<=prop_missing<=50')['column'].to_list() #select object categorical
+        categorical_list = DataCleaner.get_categorical(self, province_col).query('col_type == "object" & categorical == True & 1<=prop_missing<=50')['column'].to_list() #select object categorical
 
         #only select categorical vals whose mode == 1
         new_cat = []
@@ -172,10 +165,10 @@ class HealthCleaner:
     #fill numeric columns
     def fill_numeric(self, province_col):
         #get categorical df
-        frame_copy = HealthCleaner.fill_categorical(self, province_col)
+        frame_copy = DataCleaner.fill_categorical(self, province_col)
         
         #identify numeric columns for filling
-        numeric_fill = HealthCleaner.get_missing_id(self).query('col_type != "object" & prop_missing>0')['column'].to_list()
+        numeric_fill = DataCleaner.get_missing_id(self).query('col_type != "object" & prop_missing>0')['column'].to_list()
         
         #fill numeric with median
         frame_copy[numeric_fill] = frame_copy[numeric_fill].fillna(frame_copy[numeric_fill].median().iloc[0])
@@ -187,13 +180,13 @@ class HealthCleaner:
     def transform_data(self, province_col, col_ex):
         
         #read numeric cleaned data
-        frame_copy = HealthCleaner.fill_numeric(self,province_col)
+        frame_copy = DataCleaner.fill_numeric(self,province_col)
         
         #drop columns
         frame_clean = frame_copy.drop(columns = col_ex)
         
         #identify dummy cols, all categorical
-        categorical_temp = HealthCleaner.get_categorical(self, province_col)
+        categorical_temp = DataCleaner.get_categorical(self, province_col)
         
         #cast coltype as str, as it was causing an error otherwise
         categorical_temp['col_type'] = categorical_temp['col_type'].astype(str)
@@ -229,4 +222,3 @@ class HealthCleaner:
             writer.writerow(clean_data.transform_data(province_col, col_ex))
 
         print('Successfully wrote output csv file')
-
